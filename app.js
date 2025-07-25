@@ -23,7 +23,7 @@ let current = {};
 let currentLang = "en";
 let serviceType = "Delivery";
 let tableNumber = null;
-let userId = null;
+let userId = 0;
 let userName = null;
 let firstName = null;
 let itemModal, summaryModal;
@@ -78,12 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
     sugarContainer.appendChild(div);
   });
 
+  // getUserAddress();
   setLanguage(currentLang);
   init();
 
-  userId = document.getElementById('chatId').value;//471682968;// 
-  userName = document.getElementById('userName').value;
-  firstName = document.getElementById('firstName').value;
+  // userId = +document.getElementById('chatId').value;//471682968;// 
+  // userName = document.getElementById('userName').value;
+  // firstName = document.getElementById('firstName').value;
 
   document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "en" ? "km" : "en";
@@ -113,12 +114,31 @@ function setLanguage(lang) {
 function init() {
   renderMenu("drink-menu", drinkItems);
   renderMenu("snack-menu", snackItems);
-  getUserAddress();
   updateButtonStates();
   updateBadges();
 }
 
-async function getUserAddress() {
+// async function getUserAddress() {
+//   userId = +document.getElementById('chatId').value;//471682968;// 
+// console.log(userId);
+//   try {
+//     const res = await fetch(`${httprequest}getaddress`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ chatId: userId })
+//     });
+
+//     addressData = await res.json();
+//   } catch (err) {
+//     console.error("Failed to load address", err);
+//   }
+// }
+
+
+async function openAddressModal() {
+  // Fill form if data exists
+  userId = +document.getElementById('chatId').value;//471682968;// 
+console.log(userId);
   try {
     const res = await fetch(`${httprequest}getaddress`, {
       method: "POST",
@@ -126,28 +146,12 @@ async function getUserAddress() {
       body: JSON.stringify({ chatId: userId })
     });
 
+    console.log(res);
     addressData = await res.json();
+    console.log(addressData);
   } catch (err) {
     console.error("Failed to load address", err);
   }
-}
-
-
-async function openAddressModal() {
-  // Fill form if data exists
-  // try {
-  //   const res = await fetch(`${httprequest}getaddress`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ chatId: userId })
-  //   });
-
-  //   console.log(res);
-  //   addressData = await res.json();
-  //   console.log(addressData);
-  // } catch (err) {
-  //   console.error("Failed to load address", err);
-  // }
 
   document.getElementById('houseNo').value = addressData.houseNo || '';
   document.getElementById('street').value = addressData.street || '';
@@ -157,7 +161,8 @@ async function openAddressModal() {
 
 async function saveAddress() {
   const addressBtn = document.getElementById('checkoutBtn');
-
+  userId = +document.getElementById('chatId').value;//471682968;// 
+console.log(userId);
   addressData.houseNo = document.getElementById('houseNo').value.trim() || '';
   addressData.street = document.getElementById('street').value.trim() || '';
   addressData.note = document.getElementById('note').value.trim() || '';
@@ -208,12 +213,14 @@ async function saveAddress() {
 }
 
 function renderMenu(containerId, itemsArray) {
+//   userId = +document.getElementById('chatId').value;//471682968;// 
+// console.log(userId);  
   const menu = document.getElementById(containerId);
   if (!menu) {
     console.warn(`⚠️ Element with id="${containerId}" not found.`);
     return;
   }
-  
+
   menu.innerHTML = '';
   itemsArray.forEach(it => {
     const div = document.createElement('div');
@@ -382,6 +389,8 @@ function removeGroup(key) {
 }
 
 async function checkout() {
+  userId = +document.getElementById('chatId').value;//471682968;// 
+console.log(userId);
   const checkoutBtn = document.getElementById('checkoutBtn');
   checkoutBtn.disabled = true;
 
