@@ -1,0 +1,242 @@
+<html lang = "en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer&family=Playfair+Display:wght@400;700&display=swap"
+    rel="stylesheet">
+  <title>Coffee Shop</title>
+</head>
+
+<body class="bg-light text-center" style="font-family: 'Playfair Display', sans-serif;">
+  <input type="hidden" id="chatId" name="chatId">
+  <input type="hidden" id="userName" name="userName">
+  <input type="hidden" id="firstName" name="firstName">
+
+  <!-- Navbar with Settings Dropdown -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-3 sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" id="page-title">☕ Coffee Shop</a>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          ⚙️
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <button class="dropdown-item" id="langToggle">🌐 Language</button>
+          </li>
+          <li>
+            <button class="dropdown-item" onclick="openAddressModal()">🏠 Address</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <!-- <div class="row" id="menu"></div> -->
+    <ul class="nav nav-tabs mb-3" id="menuTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="drink-tab" data-bs-toggle="tab" data-bs-target="#drink" type="button"
+          role="tab">☕ Drink</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="snack-tab" data-bs-toggle="tab" data-bs-target="#snack" type="button" role="tab">🍪
+          Snack</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="menuTabContent">
+      <div class="tab-pane fade show active" id="drink" role="tabpanel">
+        <div class="row" id="drink-menu"></div> <!-- ✅ Must match JavaScript -->
+      </div>
+      <div class="tab-pane fade" id="snack" role="tabpanel">
+        <div class="row" id="snack-menu"></div> <!-- ✅ Must match JavaScript -->
+      </div>
+    </div>
+
+    <button id="orderBtn" class="btn btn-primary mt-4 w-100" onclick="openSummary()">🛒 ORDER</button>
+  </div>
+
+  <!-- Item Modal -->
+  <div class="modal fade" id="itemModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content text-start">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-name"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <img id="modal-img" src="" alt="" class="img-fluid mb-3" />
+
+          <div class="mb-3">
+            <label class="form-label" id="label-size">Size:</label>
+            <div id="size-options" class="d-flex gap-3 flex-wrap">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeSmall" value="Small">
+                <label class="form-check-label" for="sizeSmall">Small</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeMedium" value="Medium" checked>
+                <label class="form-check-label" for="sizeMedium">Medium</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="size" id="sizeLarge" value="Large">
+                <label class="form-check-label" for="sizeLarge">Large</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" id="label-sugar">Sugar (%):</label>
+            <div id="sugar-options" class="d-flex gap-3 flex-wrap"></div>
+          </div>
+
+          <!-- <div class="mb-3">
+            <label class="form-label" id="label-milk">Milk :</label>
+            <div id="milk-options" class="d-flex gap-3 flex-wrap"></div>
+          </div> -->
+
+          <label class="form-label" id="label-qty">Quantity:</label>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="btn btn-sm btn-danger" onclick="changeQty(-1)">-</button>
+            <span id="modal-qty">1</span>
+            <button class="btn btn-sm btn-success" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-warning w-100" onclick="confirmAdd()" id="addBtn">ADD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div class="modal fade" id="summaryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content text-start">
+        <div class="modal-header">
+          <h5 class="modal-title" id="summaryTitle">Your Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="summaryList" class="mb-3"></div>
+          <p id="summaryTotal" class="fw-bold">Total: $0.00</p>
+
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="serviceType" value="Delivery">
+            <label class="form-check-label" id="label-delivery">Delivery</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="serviceType" value="Come and Take" checked>
+            <label class="form-check-label" id="label-takeaway">Come and Take</label>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="serviceType" value="Dine In">
+            <label class="form-check-label" id="label-dinein">Dine In</label>
+          </div>
+
+          <div id="tableSelection" class="mb-3" style="display: none;">
+            <label for="tableNumber" class="form-label" id="label-table">Table:</label>
+            <select class="form-select" id="tableNumber">
+              <option disabled selected>Select table</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="checkoutBtn" class="btn btn-success w-100" onclick="checkout()">CHECK OUT</button>
+          <!-- <div class="d-flex justify-content-between mt-3">
+            <button id="printBtn" class="btn btn-outline-secondary" onclick="printReceipt()">🖨 Print</button>
+            <button id="darkBtn" class="btn btn-outline-dark" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Address Modal -->
+  <div class="modal fade" id="addressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content text-start">
+        <div class="modal-header">
+          <h5 class="modal-title">📍 Delivery Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="houseNo" class="form-label">House No:</label>
+            <input type="text" class="form-control" id="houseNo" placeholder="Enter house number">
+          </div>
+          <div class="mb-3">
+            <label for="street" class="form-label">Street:</label>
+            <input type="text" class="form-control" id="street" placeholder="Enter street">
+          </div>
+          <div class="mb-3">
+            <label for="note" class="form-label">Note:</label>
+            <textarea class="form-control" id="note" rows="2" placeholder="Extra info..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary w-100" onclick="saveAddress()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Optional: full screen
+
+    // ✅ Get the Telegram user ID
+    document.getElementById('chatId').value = tg.initDataUnsafe?.user?.id;
+    document.getElementById('userName').value = tg.initDataUnsafe?.user?.username;
+    document.getElementById('firstName').value = tg.initDataUnsafe?.user?.firstname;
+
+    // const userId = document.getElementById('chatId');
+    // userId.value = tg.initDataUnsafe?.user?.id;
+
+    // const userName = document.getElementById('userName');
+    // userName.value = tg.initDataUnsafe?.user?.username;
+
+    // const userId = tg.initDataUnsafe?.user?.id;
+    // const username = tg.initDataUnsafe?.user?.username;
+
+    // console.log("User ID:", userId);
+    // console.log("Username:", username);
+
+    // Include userId in your HTTP request
+    // document.getElementById("checkoutBtn").addEventListener("click", () => {
+    //   const orderPayload = {
+    //     userId: userId,             // 👈 Include this
+    //     username: username,
+    //     items: ['Latte', 'Mocha'],
+    //     total: '5.50'
+    //   };
+
+    //   fetch("https://your-n8n-endpoint.com/order", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(orderPayload)
+    //   });
+    // });
+  });
+</script>
+
+</html>
