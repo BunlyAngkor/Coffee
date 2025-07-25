@@ -209,6 +209,11 @@ async function saveAddress() {
 
 function renderMenu(containerId, itemsArray) {
   const menu = document.getElementById(containerId);
+  if (!menu) {
+    console.warn(`⚠️ Element with id="${containerId}" not found.`);
+    return;
+  }
+  
   menu.innerHTML = '';
   itemsArray.forEach(it => {
     const div = document.createElement('div');
@@ -406,7 +411,7 @@ async function checkout() {
       category: item.category
     }))
   };
-console.log(payload);
+  console.log(payload);
   await fetch(`${httprequest}order`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
